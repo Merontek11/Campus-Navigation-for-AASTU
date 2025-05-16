@@ -1,6 +1,9 @@
 from rest_framework import serializers
 from .models import Place
 from .models import Event
+from .models import GalleryImage
+from .models import Category 
+from .models import NavigationInstruction
 from django.contrib.auth.models import User
 
 class PlaceSerializer(serializers.ModelSerializer):
@@ -28,4 +31,22 @@ class EventSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Event
+        fields = '__all__'
+
+
+class GalleryImageSerializer(serializers.ModelSerializer):
+    uploaded_by = serializers.StringRelatedField(read_only=True)
+
+    class Meta:
+        model = GalleryImage
+        fields = ['id', 'title', 'image', 'uploaded_by', 'is_approved', 'created_at']
+        read_only_fields = ['uploaded_by', 'is_approved', 'created_at']
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ['id', 'name_en', 'name_am']
+class NavigationInstructionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NavigationInstruction
         fields = '__all__'

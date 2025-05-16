@@ -26,10 +26,8 @@ SECRET_KEY = 'django-insecure-xedz$(st-nu^6xw--ji-536^lsjel#77szq7u3c#cqqfh$(#(-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['192.168.100.19','localhost', '127.0.0.1','192.168.107.20']
 
-
-# Application definition
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -49,6 +47,8 @@ INSTALLED_APPS = [
     'dj_rest_auth.registration',
     'django.contrib.sites',
     'django_filters',
+    'corsheaders',
+    'django_extensions',
 ]
 
 SITE_ID = 1  # Required for allauth
@@ -58,6 +58,9 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+     'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
 }
 
 SIMPLE_JWT = {
@@ -75,9 +78,14 @@ MIDDLEWARE = [
     "allauth.account.middleware.AccountMiddleware",
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
-
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:19006",  
+    "http://localhost:8989"
+]
 ROOT_URLCONF = 'campus_nav_backend.urls'
+
 
 TEMPLATES = [
     {

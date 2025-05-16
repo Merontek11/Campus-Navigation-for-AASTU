@@ -12,26 +12,20 @@ from rest_framework import status
 from .serializers import PlaceSerializer, RegisterSerializer, UserSerializer, EventSerializer
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.permissions import BasePermission
-
-class IsAdminUserOrReadOnly(BasePermission):
-    def has_permission(self, request, view):
-        # Safe methods = GET, HEAD, OPTIONS
-        if request.method in permissions.SAFE_METHODS:
-            return True
-        # Only admins can write
-        return request.user and request.user.is_staff
-
-
+from .models import GalleryImage
+from .serializers import GalleryImageSerializer
+from .permissions import IsAdminUserOrReadOnly
+from rest_framework.permissions import BasePermission
 class PlaceListCreateView(generics.ListCreateAPIView):
     queryset = Place.objects.all()
     serializer_class = PlaceSerializer
     permission_classes = [IsAdminUserOrReadOnly]
 
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
-    search_fields = ['name']  # 🔍 Allows searching by name
-    filterset_fields = ['category']  # 🏷️ Allows filtering by category
+    search_fields = ['name'] 
+    filterset_fields = ['category']  
     def perform_create(self, serializer):
-        serializer.save()  # Optional: you can add owner=self.request.user if needed
+        serializer.save()  
     def create(self, request, *args, **kwargs):
         response = super().create(request, *args, **kwargs)
         return Response({
@@ -42,11 +36,11 @@ class PlaceListCreateView(generics.ListCreateAPIView):
         queryset = Place.objects.all()
         search_query = self.request.query_params.get('search', '')
 
-        # ✅ Basic validation: length limit
+        
         if len(search_query) > 100:
-            return queryset.none()  # too long = no match
+            return queryset.none()  
 
-        # ✅ Sanitization: remove special characters
+        
         clean_query = re.sub(r'[^a-zA-Z0-9\s]', '', search_query).strip()
 
         if clean_query:
@@ -57,7 +51,7 @@ class PlaceListCreateView(generics.ListCreateAPIView):
 class PlaceDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Place.objects.all()
     serializer_class = PlaceSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]  # View: everyone | Edit/Delete: logged in only
+    permission_classes = [IsAdminUserOrReadOnly]  
     def update(self, request, *args, **kwargs):
         response = super().update(request, *args, **kwargs)
         return Response({
@@ -75,7 +69,7 @@ class PlaceDetailView(generics.RetrieveUpdateDestroyAPIView):
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = RegisterSerializer
-    permission_classes = [permissions.AllowAny]  # Allow registration for all
+    permission_classes = [permissions.AllowAny]  
     def create(self, request, *args, **kwargs):
         response = super().create(request, *args, **kwargs)
         return Response({
@@ -89,7 +83,7 @@ class UserDetailView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user
-
+        
 class RouteView(APIView):
     def get(self, request):
         start = request.query_params.get('start')  
@@ -102,7 +96,7 @@ class RouteView(APIView):
         graphhopper_url = 'http://localhost:8989/route'
         params = {
             'point': [start, end],
-            'vehicle': 'vehicle',  
+            'profile': vehicle,  
             'locale': 'en',
             'instructions': 'true',
             'calc_points': 'true',
@@ -115,13 +109,14 @@ class RouteView(APIView):
 
             if 'paths' not in data or not data['paths']:
                 return Response({'error': 'No route found.'}, status=404)
+
             path = data['paths'][0]
 
             readable_data = {
-                "distance_km": round(path['distance'] / 1000, 2),  # meters to km
-                "time_minutes": round(path['time'] / 60000),       # ms to minutes
-                "points": path['points']['coordinates'],           # for drawing map
-                "instructions": path.get('instructions', []),      # turn-by-turn directions
+                "distance_km": round(path['distance'] / 1000, 2),  
+                "time_minutes": round(path['time'] / 60000),       
+                "points": path['points']['coordinates'],           
+                "instructions": path.get('instructions', []),      
                 "vehicle": vehicle
             }
 
@@ -129,22 +124,98 @@ class RouteView(APIView):
 
         except requests.exceptions.RequestException as e:
             return Response({'error': str(e)}, status=500)
-        
 
-# 📆 List and Create Events
+
 class EventListCreateView(generics.ListCreateAPIView):
     queryset = Event.objects.all().order_by('-date')
     serializer_class = EventSerializer
     permission_classes = [IsAdminUserOrReadOnly]
     filter_backends = [filters.SearchFilter]
-    search_fields = ['title', 'description', 'category', 'location__name']  # 🔍
+    search_fields = ['title', 'description', 'category', 'location__name']  
 
     def perform_create(self, serializer):
         serializer.save()
 
 
-# ✏️ Retrieve, Update, Delete an Event (admin only for edit/delete)
+
 class EventDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Event.objects.all()
     serializer_class = EventSerializer
     permission_classes = [IsAdminUserOrReadOnly]
+
+class GalleryImageListCreateView(generics.ListCreateAPIView):
+    queryset = GalleryImage.objects.filter(approved=True).order_by('-created_at')
+    serializer_class = GalleryImageSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def perform_create(self, serializer):
+        serializer.save(uploaded_by=self.request.user, approved=False)
+
+class GalleryImagePendingApprovalView(generics.ListAPIView):
+    queryset = GalleryImage.objects.filter(approved=False)
+    serializer_class = GalleryImageSerializer
+    permission_classes = [IsAdminUserOrReadOnly]  
+
+class GalleryImageApproveView(generics.UpdateAPIView):
+    queryset = GalleryImage.objects.all()
+    serializer_class = GalleryImageSerializer
+    permission_classes = [IsAdminUserOrReadOnly]
+
+    def patch(self, request, *args, **kwargs):
+        image = self.get_object()
+        image.approved = True
+        image.save()
+        return Response({"message": "✅ Image approved!"})
+
+from rest_framework import generics
+from .models import Category
+from .serializers import CategorySerializer
+from .permissions import IsAdminUserOrReadOnly
+
+class CategoryListCreateView(generics.ListCreateAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = [IsAdminUserOrReadOnly]
+
+class CategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = [IsAdminUserOrReadOnly]
+
+class NavigationView(APIView):
+    def post(self, request):
+        try:
+            start_lat = request.data.get('start_lat')
+            start_lon = request.data.get('start_lon')
+            end_place_id = request.data.get('end_place_id')
+
+            if not (start_lat and start_lon and end_place_id):
+                return Response({'error': 'start_lat, start_lon, and end_place_id are required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            try:
+                end_place = Place.objects.get(id=end_place_id)
+            except Place.DoesNotExist:
+                return Response({'error': 'End place not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+            end_lat = end_place.latitude
+            end_lon = end_place.longitude
+
+            graphhopper_url = 'http://localhost:8989/route'
+            params = {
+                'point': [f'{start_lat},{start_lon}', f'{end_lat},{end_lon}'],
+                'profile': 'vehicle',
+                'locale': 'en',
+                'instructions': 'true',
+                'calc_points': 'true'
+            }
+
+            response = requests.get(graphhopper_url, params=params)
+            data = response.json()
+
+            if 'paths' not in data:
+                return Response({'error': 'Error fetching route from GraphHopper.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+            return Response(data['paths'][0], status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
