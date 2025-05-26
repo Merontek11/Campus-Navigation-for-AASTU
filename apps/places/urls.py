@@ -12,8 +12,8 @@ from .views import (
 
 urlpatterns = [
     path('', PlaceListCreateView.as_view(), name='place-list'),
-    path('/<int:pk>/', PlaceDetailView.as_view(), name='place-detail'),
-    path('/sync/', PlaceSyncView.as_view(), name='place_sync'),
+    path('<int:pk>/', PlaceDetailView.as_view(), name='place-detail'),
+    path('sync/', PlaceSyncView.as_view(), name='place_sync'),
     path('events/', EventListCreateView.as_view(), name='event-list-create'),
     path('events/<int:pk>/', EventDetailView.as_view(), name='event-detail'),
     path('gallery/', GalleryImageListCreateView.as_view(), name='gallery-list-create'),
