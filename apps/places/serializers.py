@@ -9,14 +9,10 @@ from .models import Category, Place
 #         model = Category
 #         fields = ['id', 'name', 'description']
 
-# class PlaceSerializer(serializers.ModelSerializer):
-#       class Meta:
-#           model = Place
-#           fields = '__all__'
 class PlaceSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Place
-        exclude = ['image']
+      class Meta:
+          model = Place
+          fields = '__all__'
 
 class EventSerializer(serializers.ModelSerializer):
     location_name = serializers.CharField(source='location.name', read_only=True)
