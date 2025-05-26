@@ -9,12 +9,12 @@ def home(request):
 
 
 urlpatterns = [
-      path('', home),
-      path('admin/', admin.site.urls),
-      path('api/core/', include('apps.core.urls')),
-      path('api/places/', include('apps.places.urls')),
-      path('api/navigation/', include('apps.navigation.urls')),
-      path('api/feedback/', include('apps.feedback.urls')),
+    path('', home),
+    path('admin/', admin.site.urls),
+    path('api/core/', include('apps.core.urls')),
+    path('api/places/', include('apps.places.urls')),
+    path('api/navigation/', include('apps.navigation.urls')),
+    path('api/feedback/', include('apps.feedback.urls')),
   ]
 
 if settings.DEBUG:
