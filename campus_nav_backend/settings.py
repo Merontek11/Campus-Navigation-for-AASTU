@@ -29,7 +29,7 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = ['192.168.100.19','localhost', '127.0.0.1','192.168.107.20', '192.168.117.20', '192.168.216.20']
+ALLOWED_HOSTS = ['192.168.100.19','localhost', '127.0.0.1','192.168.107.20', '192.168.117.20', '192.168.216.20','campus-navigation-for-aastu-4.onrender.com']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 # GDAL_LIBRARY_PATH = r"C:\Users\hp\Documents\release-1916-x64-gdal-3-8-5-mapserver-8-0-1\bin\gdal.dll"
 INSTALLED_APPS = [
@@ -139,7 +139,9 @@ DATABASES = {
 }
 
 # If DATABASE_URL is present (on Render), override it
-DATABASES['default'] = dj_database_url.config(default=config('https://dashboard.render.com/d/dpg-d0q00cje5dus73e8lhc0-a', default=''), conn_max_age=600)
+DATABASES['default'] = dj_database_url.config(default=config('postgres://postgres:standuser@localhost:5432/campus_nav_db'
+, default=''), conn_max_age=600)
+
 
 
 
