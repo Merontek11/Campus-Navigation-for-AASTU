@@ -29,8 +29,8 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = ['192.168.100.19','localhost', '127.0.0.1','192.168.107.20', '192.168.117.20', '192.168.216.20','campus-navigation-for-aastu-4.onrender.com']
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+ALLOWED_HOSTS = ['192.168.100.19','localhost', '127.0.0.1','192.168.107.20', '192.168.117.20', '192.168.216.20','.onrender.com']
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 # GDAL_LIBRARY_PATH = r"C:\Users\hp\Documents\release-1916-x64-gdal-3-8-5-mapserver-8-0-1\bin\gdal.dll"
 INSTALLED_APPS = [
       'django.contrib.admin',
@@ -78,10 +78,11 @@ SIMPLE_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
 }
 
-
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 MIDDLEWARE = [
      'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     # 'django.middleware.csrf.CsrfViewMiddleware',
@@ -89,7 +90,7 @@ MIDDLEWARE = [
     "allauth.account.middleware.AccountMiddleware",
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    
    
 ]
 CORS_ALLOWED_ORIGINS = [
