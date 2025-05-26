@@ -24,7 +24,7 @@ class PlaceListCreateView(generics.ListCreateAPIView):
     def create(self, request, *args, **kwargs):
         response = super().create(request, *args, **kwargs)
         return Response({
-            "message": "🎉 Place added successfully!",
+            "message": "Place added successfully!",
             "place": response.data
         }, status=status.HTTP_201_CREATED)
     def get_queryset(self):
@@ -42,6 +42,7 @@ class PlaceListCreateView(generics.ListCreateAPIView):
             queryset = queryset.filter(name__icontains=clean_query)
 
         return queryset
+    
 
 class PlaceDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Place.objects.all()
@@ -50,7 +51,7 @@ class PlaceDetailView(generics.RetrieveUpdateDestroyAPIView):
     def update(self, request, *args, **kwargs):
         response = super().update(request, *args, **kwargs)
         return Response({
-            "message": "✏️ Place updated successfully!",
+            "message": " Place updated successfully!",
             "place": response.data
         })
 
@@ -58,7 +59,7 @@ class PlaceDetailView(generics.RetrieveUpdateDestroyAPIView):
         instance = self.get_object()
         instance.delete()
         return Response({
-            "message": "🗑️ Place deleted successfully!"
+            "message": " Place deleted successfully!"
         }, status=status.HTTP_204_NO_CONTENT)
 
 class PlaceSyncView(APIView):
