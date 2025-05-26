@@ -8,6 +8,7 @@ def home(request):
     return HttpResponse("Welcome to Campus Navigation API!")
 
 
+
 urlpatterns = [
     path('', home),
     path('admin/', admin.site.urls),
